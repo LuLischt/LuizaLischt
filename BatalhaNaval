@@ -1,0 +1,151 @@
+import os
+
+def criar_tabuleiro():
+    return [["o"] * 5 for _ in range(5)]
+
+def criar_tabuleiroEscondido():
+    return [["o"] * 5 for _ in range(5)]
+
+def exibir_tabuleiroEscondido(tabuleiroEscondido):
+    print("")
+    print("1 2 3 4 5")
+    for linha in tabuleiroEscondido:
+        print(" ".join(linha))
+    print()
+
+
+def exibir_tabuleiro(tabuleiro):
+    for linha in tabuleiro:
+        print(" ".join(linha))
+    print()
+
+
+def posicionar_submarinos(tabuleiro, jogador):
+    print("")
+    print(f"{jogador}, posicione seus 3 submarinos (linhas e colunas de 1 a 5):")
+    print("")
+    for i in range(3):
+        while True:
+            try:
+                linha = int(input(f"Posição {i+1} - Linha: "))
+                coluna = int(input(f"Posição {i+1} - Coluna: "))
+                print("")
+                if 1 <= linha <= 5 and 1 <= coluna <= 5 and tabuleiro[linha - 1][coluna - 1] == "o":
+                    tabuleiro[linha - 1][coluna - 1] = "N"
+                    break
+                else:
+                    print("Posição inválida ou já ocupada. Tente novamente.")
+            except ValueError:
+                print("Por favor, insira um número válido de 1 a 5.")
+
+
+def efetuar_tiro(tabuleiro, jogador, escondido):
+    print(f"{jogador}, é a sua vez de atirar!")
+    print("")
+    while True:
+        try:
+            linha = int(input("Informe a linha (1 a 5): "))
+            coluna = int(input("Informe a coluna (1 a 5): "))
+            print("")
+            if 1 <= linha <= 5 and 1 <= coluna <= 5 and tabuleiro[linha - 1][coluna - 1] in ["o", "N"]:
+                if tabuleiro[linha - 1][coluna - 1] == "o":
+                    print("Tiro na água!")
+                    print("")
+                    escondido[linha - 1][coluna - 1] = "X"
+                    tabuleiro[linha - 1][coluna - 1] = "X"
+                    return False
+                elif tabuleiro[linha - 1][coluna - 1] == "N":
+                    print("Você acertou um submarino!")
+                    escondido[linha - 1][coluna - 1] = "S"
+                    tabuleiro[linha - 1][coluna - 1] = "S"
+                    return True
+            elif tabuleiro[linha - 1][coluna - 1] == "X":
+                print("Posição inválida ou já atirada. Tente novamente.")
+            elif tabuleiro[linha - 1][coluna - 1] == "S":
+                print("Posição inválida ou já atirada. Tente novamente.")
+                break
+        except ValueError:
+            print("Por favor, insira um número válido de 1 a 5.")
+
+
+def verificar_vitoria(tabuleiroEscondido):
+    submarinos_afundados = sum(linha.count("S") for linha in tabuleiroEscondido)
+    return submarinos_afundados == 3
+
+
+def jogo_batalha_submarino():
+    while True:
+        os.system("clear" if os.name == "posix" else "cls")  # Limpa a tela
+        tabuleiro_jogador1 = criar_tabuleiro()
+        tabuleiro_jogador2 = criar_tabuleiro()
+        tabuleiro_jogador2Escondido = criar_tabuleiroEscondido()
+        tabuleiro_jogador1Escondido = criar_tabuleiroEscondido()
+
+
+
+        jogador1 = input("Digite o nome do Jogador 1: ")
+        print("")
+        jogador2 = input("Digite o nome do Jogador 2: ")
+
+        posicionar_submarinos(tabuleiro_jogador1, jogador1)
+        input("Pressione ENTER para limpar a tela e passar a vez para o Jogador 2...")
+        os.system("clear" if os.name == "posix" else "cls")
+
+        posicionar_submarinos(tabuleiro_jogador2, jogador2)
+        input("Pressione ENTER para limpar a tela e começar o jogo...")
+
+        tiros_jogador1 = 0
+        tiros_jogador2 = 0
+        acertosjogador1 = 0
+        acertosjogador2 = 0
+
+
+
+        while True:
+            os.system("clear" if os.name == "posix" else "cls")
+
+            print(f"Jogador 1: {jogador1}")
+            print("Tiros: ",tiros_jogador1,"   Acertos: ",acertosjogador1)
+            exibir_tabuleiroEscondido(tabuleiro_jogador2Escondido)
+            acertou = efetuar_tiro(tabuleiro_jogador2, jogador1, tabuleiro_jogador2Escondido)
+            if acertou:
+                acertosjogador1 += 1
+                tiros_jogador1 += 1
+            else:
+                tiros_jogador1 += 1
+            input("Pressione ENTER para continuar...")
+            print("")
+
+            if verificar_vitoria(tabuleiro_jogador2Escondido):
+                print("")
+                print(f"{jogador1} venceu! Total de tiros: {tiros_jogador1}")
+                break
+
+            os.system("clear" if os.name == "posix" else "cls")
+
+            print(f"Jogador 2: {jogador2}")
+            print("Tiros: ",tiros_jogador2,"   Acertos: ",acertosjogador2)
+            print("")
+            exibir_tabuleiroEscondido(tabuleiro_jogador1Escondido)
+            acertou = efetuar_tiro(tabuleiro_jogador1, jogador2, tabuleiro_jogador1Escondido)
+            if acertou:
+                acertosjogador2 += 1
+                tiros_jogador2 += 1
+            else:
+                tiros_jogador2 += 1
+            input("Pressione ENTER para continuar...")
+            print("")
+
+            if verificar_vitoria(tabuleiro_jogador1Escondido):
+                print("")
+                print(f"{jogador2} venceu! Total de tiros: {tiros_jogador2}")
+                break
+
+        print("")
+        jogar_novamente = input("Deseja jogar novamente? (s/n): ")
+        print("")
+        if jogar_novamente.lower() != "s":
+            break
+
+if __name__ == "__main__":
+    jogo_batalha_submarino()
